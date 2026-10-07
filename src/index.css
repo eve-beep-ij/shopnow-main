@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Open Sans", sans-serif;
+}
+
+:root {
+  --bs-danger: hsl(0, 100%, 43%);
+}
+
+.navbar-gradient {
+  background : linear-gradient(to bottom, rgba(88, 88, 88), rgba(74, 74, 74) 30%, rgb(50, 50, 50) 100%);
+}
+

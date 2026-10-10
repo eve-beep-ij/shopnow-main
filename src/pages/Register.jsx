@@ -39,8 +39,8 @@ const Register = () => {
     try {
       await api.post("/auth/register/", formData);
 
-      localStorage.setItem("verification-email", formData.email);
-      navigate("/verify-email");
+      // localStorage.setItem("verification-email", formData.email);
+      navigate("/login");
     } catch (error) {
       if (error.response?.data) {
         setError(JSON.stringify(error.response.data));

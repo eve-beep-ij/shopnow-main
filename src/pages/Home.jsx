@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -5,12 +6,12 @@ import { useNavigate } from "react-router-dom";
 import img from "../assets/banner.webp";
 
 const Home = () => {
-  const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [categories, setCategoriess] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const [formData, setFormData] = useState({
     category: "",
@@ -18,7 +19,7 @@ const Home = () => {
     description: "",
     price: "",
     stock: "",
-    is_available: "",
+    is_available: true,
   });
 
   const [images, setImages] = useState([]);
@@ -45,9 +46,9 @@ const Home = () => {
   const getCategories = async () => {
     try {
       const response = await api.get("/product-categories/");
-      setCategoriess(response.data);
-    } catch (error) {
-      console.log(error);
+      setCategories(response.data);
+    } catch (err) {
+      console.log(err);
       setCreateError("Unable to load categories");
     }
   };
@@ -57,7 +58,7 @@ const Home = () => {
 
     setFormData({
       ...formData,
-      [name]: type == "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     });
   }
 
@@ -73,7 +74,7 @@ const Home = () => {
 
     const data = new FormData();
 
-    data.append("name, formData.name");
+    data.append("name", formData.name);
     data.append("category", formData.category);
     data.append("description", formData.description);
     data.append("price", formData.price);
@@ -81,7 +82,7 @@ const Home = () => {
     data.append("is_available", formData.is_available);
 
     for (let i = 0; i < images.length; i++) {
-      data.append("images", images[1]);
+      data.append("images", images[i]);
     }
 
     try {
@@ -112,7 +113,7 @@ const Home = () => {
   if (loading) {
     return (
       <div className="container mt-5 text-center">
-        <h4>loading products...</h4>
+        <h4>Loading products...</h4>
       </div>
     );
   }
@@ -124,6 +125,7 @@ const Home = () => {
       </div>
     );
   }
+
   return (
     <div>
       <div
@@ -173,15 +175,17 @@ const Home = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#createProductModal"
-          onClick={getCategories}
-        >
-          Create Product
-        </button>
+        <div className="text-center my-3">
+          <button
+            type="button"
+            className="btn btn-outline-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#createProductModal"
+            onClick={getCategories}
+          >
+            Create Product
+          </button>
+        </div>
 
         <div
           className="modal fade"
@@ -197,7 +201,7 @@ const Home = () => {
           >
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title" id="modalTitled">
+                <h5 className="modal-title" id="modalTitleId">
                   Create Product
                 </h5>
                 <button
@@ -209,92 +213,105 @@ const Home = () => {
               </div>
               <form onSubmit={handleCreateProduct}>
                 <div class="modal-body">
-                    {createError && (
-                        <div className="alert alert-danger">
-                            {createError}
-                        </div>
-                    )}
+                  {createError && (
+                    <div className="alert alert-danger">{createError}</div>
+                  )}
+                  <div className="mb-3">
+                    <label className="form-label">Category</label>
 
-                    <div className="mb-3">
-                        <label className="form-label">Category</label>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      className="form-select"
+                    >
+                      <option value="">Select category</option>
 
-                        <select 
-                        name="category" 
-                        value={formData.category}
-                        onChange={handleChange}
-                        className="form-select"
-                        >
-                            <option value="">Select category</option>
+                      {categories.map((category) => (
+                        <option value={category.id} key={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Product Name</label>
 
-                            {categories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Description</label>
 
-                    <div className="mb-3">
-                        <label className="form-label">Name</label>
-
-                        <input 
-                        type="text" 
-                        name="name" 
-                        value={formData.name}
-                        onChange={handleChange}
+                    <textarea
+                      name="description"
+                      className="form-control"
+                      value={formData.description}
+                      onChange={handleChange}
+                    ></textarea>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Price</label>
+                      <input
+                        type="number"
+                        name="price"
                         className="form-control"
-                        />
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label">Description</label>
-
-                        <textarea 
-                        name="description" 
-                        value={formData.description}
+                        value={formData.price}
                         onChange={handleChange}
+                        min="0"
+                      />
+                    </div>
+
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Stock</label>
+                      <input
+                        type="number"
+                        name="stock"
                         className="form-control"
-                        ></textarea>
+                        value={formData.stock}
+                        onChange={handleChange}
+                        min="0"
+                      />
                     </div>
+                  </div>
 
-                    <div className="row">
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Price</label>
-                            <input
-                             type="Number"
-                             name="price"
-                             className="form-control"
-                             value={formData.price}
-                             onChange={handleChange}
-                             min="0" 
-                             />
-                        </div>
+                  <div className="form-check mb-3">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="is_available"
+                      name="is_available"
+                      checked={formData.is_available}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="is_available">
+                      Product is available
+                    </label>
+                  </div>
 
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Stock</label>
-                            <input
-                             type="Number"
-                             name="stock"
-                             className="form-control"
-                             value={formData.stock}
-                             onChange={handleChange}
-                             min="0"
-                             />
-                        </div>
-                    </div>
+                  <div className="mb-4">
+                    <label className="form-label"> Product Images </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImages}
+                    />
+                  </div>
 
-
-                </div>
-                <div class="modal-footer">
                   <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
+                    type="submit"
+                    className="btn btn-dark w-100"
+                    disabled={creating}
                   >
-                    Close
-                  </button>
-                  <button type="button" class="btn btn-primary">
-                    Save
+                    {creating ? "Creating..." : "Create Product"}
                   </button>
                 </div>
               </form>
@@ -331,10 +348,10 @@ const Home = () => {
                   </h5>
                   <p className="text-secondary">Stock: {product.stock}</p>
 
-                  <button 
-                  className="btn btn-dark btn-sm" 
-                  onClick={() => navigate(`/product-detail/${product.id}`)}
-                    >
+                  <button
+                    className="btn btn-dark btn-sm"
+                    onClick={() => navigate(`/product-detail/${product.id}`)}
+                  >
                     View Product
                   </button>
                 </div>
